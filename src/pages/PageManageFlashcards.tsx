@@ -3,7 +3,6 @@ import { ChangeEvent, useContext, useState } from "react";
 import { AppContext } from "../AppContext";
 import { MdModeEditOutline, MdCancel } from "react-icons/md";
 import { RiDeleteBin6Line } from "react-icons/ri";
-import { SiOneplus } from "react-icons/si";
 import { FaSave } from "react-icons/fa";
 import {
 	IFrontendFlashcard,
@@ -11,6 +10,7 @@ import {
 	blankNewFlashcard,
 	convertFrontendFlashcardToFlaschard,
 } from "../shared/interfaces";
+import { ManageFlashcardsTableHead } from "../components/ManageFlashcardsTableHead";
 
 export const PageManageFlashcards = () => {
 	const {
@@ -68,7 +68,8 @@ export const PageManageFlashcards = () => {
 	const handleDeleteFlashcard = (frontendFlashcard: IFrontendFlashcard) => {
 		(async () => {
 			try {
-				const flashcard = convertFrontendFlashcardToFlaschard(frontendFlashcard);
+				const flashcard =
+					convertFrontendFlashcardToFlaschard(frontendFlashcard);
 				deleteFlashcard(flashcard);
 			} catch (e: any) {
 				console.log(`${e.message}`);
@@ -92,26 +93,7 @@ export const PageManageFlashcards = () => {
 
 			<form>
 				<table className="dataTable mt-4 w-[70rem]">
-					<thead>
-						<tr>
-							<th>SUUID</th>
-							<th>Category</th>
-							<th>Front</th>
-							<th>Back</th>
-							<th>
-								<div className="flex justify-center text-[#222] text-2xl">
-									<SiOneplus
-										onClick={() =>
-											setIsAddingFlashcard(
-												!isAddingFlashcard
-											)
-										}
-										className="cursor-pointer hover:text-green-900"
-									/>
-								</div>
-							</th>
-						</tr>
-					</thead>
+					<ManageFlashcardsTableHead isAddingFlashcard={isAddingFlashcard} setIsAddingFlashcard={setIsAddingFlashcard} />
 					<tbody>
 						{isAddingFlashcard && (
 							<tr>

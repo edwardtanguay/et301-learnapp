@@ -15,7 +15,8 @@ export interface IFlashcard extends INewFlashcard {
 }
 
 export interface IFrontendFlashcard extends IFlashcard {
-	userIsDeleting: boolean
+	userIsDeleting: boolean;
+	userIsEditing: boolean;
 }
 
 export interface IPatchFlashcard {
@@ -39,7 +40,7 @@ export const convertFrontendFlashcardToFlaschard = (frontendFlashcard: IFrontend
 		front: frontendFlashcard.front,
 		back: frontendFlashcard.back
 	}
-} 
+}
 
 export const convertFlashcardToFrontendFlaschard = (flashcard: IFlashcard): IFrontendFlashcard => {
 	return {
@@ -47,6 +48,7 @@ export const convertFlashcardToFrontendFlaschard = (flashcard: IFlashcard): IFro
 		category: flashcard.category,
 		front: flashcard.front,
 		back: flashcard.back,
-		userIsDeleting: false
+		userIsDeleting: false,
+		userIsEditing: false
 	}
 } 
