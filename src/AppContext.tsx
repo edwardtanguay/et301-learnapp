@@ -12,6 +12,9 @@ interface IAppContext {
 	saveAddFlashcard: (
 		newFlashcard: INewFlashcard
 	) => Promise<IPromiseResolution>;
+	deleteFlashcard: (
+		flashcard: IFlashcard
+	) => Promise<IPromiseResolution>;
 }
 
 interface IAppProvider {
@@ -66,11 +69,18 @@ export const AppProvider: React.FC<IAppProvider> = ({ children }) => {
 		});
 	};
 
+	const deleteFlashcard = async (flashcard: IFlashcard) => {
+		return new Promise<IPromiseResolution>((resolve)=> {
+			resolve({message: 'ok'})
+		})
+	}
+
 	return (
 		<AppContext.Provider
 			value={{
 				flashcards,
 				saveAddFlashcard,
+deleteFlashcard
 			}}
 		>
 			{children}
