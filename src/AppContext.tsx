@@ -12,9 +12,7 @@ interface IAppContext {
 	saveAddFlashcard: (
 		newFlashcard: INewFlashcard
 	) => Promise<IPromiseResolution>;
-	deleteFlashcard: (
-		flashcard: IFlashcard
-	) => Promise<IPromiseResolution>;
+	deleteFlashcard: (flashcard: IFlashcard) => Promise<IPromiseResolution>;
 }
 
 interface IAppProvider {
@@ -70,17 +68,46 @@ export const AppProvider: React.FC<IAppProvider> = ({ children }) => {
 	};
 
 	const deleteFlashcard = async (flashcard: IFlashcard) => {
-		return new Promise<IPromiseResolution>((resolve)=> {
-			resolve({message: 'ok'})
-		})
-	}
+		return new Promise<IPromiseResolution>((resolve, reject) => {
+			(async () => {
+				try {
+					const response = await axios.delete(
+						`${backendUrl}/api/flashcards/${flashcard.suuid}`
+					);
+					if (response.status === 200) {
+						const flashcard: IFlashcard = response.data;
+						const indexToRemove = flashcards.findIndex(
+							(m) => m.suuid === flashcard.suuid
+						);
+						if (indexToRemove !== -1) {
+							flashcards.splice(indexToRemove, 1);
+							setFlashcards(structuredClone(flashcards));
+							resolve({ message: "ok" });
+						} else {
+							reject({
+								message: `flashcard with suuid ${flashcard.suuid} not found`,
+							});
+						}
+					} else {
+						reject({
+							message: `ERROR: status code ${response.status}`,
+						});
+					}
+				} catch (e: any) {
+					reject({
+						message: `ERROR: ${e.message}`,
+					});
+				}
+			})();
+		});
+	};
 
 	return (
 		<AppContext.Provider
 			value={{
 				flashcards,
 				saveAddFlashcard,
-deleteFlashcard
+				deleteFlashcard,
 			}}
 		>
 			{children}
