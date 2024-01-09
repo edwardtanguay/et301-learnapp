@@ -16,6 +16,7 @@ interface IAppContext {
 		newFlashcard: INewFlashcard
 	) => Promise<IPromiseResolution>;
 	deleteFlashcard: (flashcard: IFlashcard) => Promise<IPromiseResolution>;
+	saveFlashcard: (flashcard: IFlashcard) => Promise<IPromiseResolution>;
 }
 
 interface IAppProvider {
@@ -41,7 +42,7 @@ export const AppProvider: React.FC<IAppProvider> = ({ children }) => {
 				const _frontendFlashcard: IFrontendFlashcard = {
 					..._flashcard,
 					userIsDeleting: false,
-					userIsEditing: false
+					userIsEditing: false,
 				};
 				_frontendFlashcards.push(_frontendFlashcard);
 			}
@@ -66,7 +67,7 @@ export const AppProvider: React.FC<IAppProvider> = ({ children }) => {
 						const _flashcard: IFlashcard = response.data;
 						const _frontendFlashcard =
 							convertFlashcardToFrontendFlaschard(_flashcard);
-						frontendFlashcards.push(_frontendFlashcard);
+						frontendFlashcards.unshift(_frontendFlashcard);
 						const _flashcards = structuredClone(frontendFlashcards);
 						setFrontendFlashcards(_flashcards);
 						resolve({ message: "ok" });
@@ -121,6 +122,52 @@ export const AppProvider: React.FC<IAppProvider> = ({ children }) => {
 		});
 	};
 
+	const saveFlashcard = async (flashcard: IFlashcard) => {
+		return new Promise<IPromiseResolution>((resolve, reject) => {
+			const headers = {
+				"Access-Control-Allow-Origin": "*",
+				"Content-Type": "application/json",
+			};
+			(async () => {
+				try {
+					const response = await axios.put(
+						`${backendUrl}/api/flashcards`,
+						flashcard,
+						{ headers }
+					);
+					if (response.status === 200) {
+						const _flashcard: IFlashcard = response.data;
+						const _frontendFlashcard =
+							convertFlashcardToFrontendFlaschard(_flashcard);
+						const frontendFlashcard = frontendFlashcards.find(
+							(m) => m.suuid === _frontendFlashcard.suuid
+						);
+						if (frontendFlashcard) {
+							frontendFlashcard.category =
+								_frontendFlashcard.category;
+							frontendFlashcard.front = _frontendFlashcard.front;
+							frontendFlashcard.back = _frontendFlashcard.back;
+							setFrontendFlashcards(structuredClone(frontendFlashcards));
+							resolve({ message: "ok" });
+						} else {
+							reject({
+								message: `ERROR: edited flashcard not found (${_frontendFlashcard.suuid})`,
+							});
+						}
+					} else {
+						reject({
+							message: `ERROR: status code ${response.status}`,
+						});
+					}
+				} catch (e: any) {
+					reject({
+						message: `ERROR: ${e.message}`,
+					});
+				}
+			})();
+		});
+	};
+
 	return (
 		<AppContext.Provider
 			value={{
@@ -128,6 +175,7 @@ export const AppProvider: React.FC<IAppProvider> = ({ children }) => {
 				saveAddFlashcard,
 				deleteFlashcard,
 				setFrontendFlashcards,
+				saveFlashcard,
 			}}
 		>
 			{children}

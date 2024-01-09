@@ -7,9 +7,10 @@ import { AppContext } from "../AppContext";
 
 interface IProps {
 	frontendFlashcard: IFrontendFlashcard;
+	toggleIsEditingFlashcard: (frontendFlashcard: IFrontendFlashcard) => void;
 }
 
-export const ManageFlashcardsMainRow = ({ frontendFlashcard } : IProps) => {
+export const ManageFlashcardsMainRow = ({ frontendFlashcard, toggleIsEditingFlashcard } : IProps) => {
 	const { frontendFlashcards, setFrontendFlashcards, deleteFlashcard } =
 		useContext(AppContext);
 
@@ -63,7 +64,7 @@ export const ManageFlashcardsMainRow = ({ frontendFlashcard } : IProps) => {
 						</>
 					) : (
 						<>
-							<MdModeEditOutline className="cursor-pointer hover:text-green-900" />
+							<MdModeEditOutline onClick={() => toggleIsEditingFlashcard(frontendFlashcard)} className="cursor-pointer hover:text-green-900" />
 							<RiDeleteBin6Line
 								onClick={() =>
 									toggleIsDeletingFlashcard(frontendFlashcard)

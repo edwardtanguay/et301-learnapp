@@ -53,10 +53,29 @@ table.dataTable {
 				td {
 					background-color: rgb(79, 0, 0);
 					color: #555;
+
 					.finalDelete {
 						color: rgb(189, 0, 0);
+
 						&:hover {
 							color: red;
+						}
+					}
+				}
+			}
+
+			&.editing {
+				$saveColor: rgb(8, 77, 15);
+
+				td {
+					background-color: rgb(117, 179, 101);
+					color: #555;
+
+					.finalDelete {
+						color: $saveColor;
+
+						&:hover {
+							color: darken($saveColor, 5%)
 						}
 					}
 				}
