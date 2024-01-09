@@ -2,13 +2,16 @@
 import { createContext, useEffect, useState } from "react";
 import {
 	IFlashcard,
+	IFrontendFlashcard,
 	INewFlashcard,
 	IPromiseResolution,
+	convertFlashcardToFrontendFlaschard,
 } from "./shared/interfaces";
 import axios from "axios";
 
 interface IAppContext {
-	flashcards: IFlashcard[];
+	frontendFlashcards: IFrontendFlashcard[];
+	setFrontendFlashcards: (frontendFlashcards: IFrontendFlashcard[]) => Promise<IPromiseResolution>;
 	saveAddFlashcard: (
 		newFlashcard: INewFlashcard
 	) => Promise<IPromiseResolution>;
@@ -24,13 +27,24 @@ const backendUrl = "http://localhost:4206";
 export const AppContext = createContext<IAppContext>({} as IAppContext);
 
 export const AppProvider: React.FC<IAppProvider> = ({ children }) => {
-	const [flashcards, setFlashcards] = useState<IFlashcard[]>([]);
+	const [frontendFlashcards, setFrontendFlashcards] = useState<
+		IFrontendFlashcard[]
+	>([]);
 
 	useEffect(() => {
 		(async () => {
 			const response = await axios.get(`${backendUrl}/api/flashcards`);
 			const _flashcards = response.data;
-			setFlashcards(_flashcards);
+
+			const _frontendFlashcards: IFrontendFlashcard[] = [];
+			for (const _flashcard of _flashcards) {
+				const _frontendFlashcard: IFrontendFlashcard = {
+					..._flashcard,
+					userIsDeleting: false,
+				};
+				_frontendFlashcards.push(_frontendFlashcard);
+			}
+			setFrontendFlashcards(_frontendFlashcards);
 		})();
 	}, []);
 
@@ -48,10 +62,12 @@ export const AppProvider: React.FC<IAppProvider> = ({ children }) => {
 						{ headers }
 					);
 					if (response.status === 201) {
-						const flashcard: IFlashcard = response.data;
-						flashcards.push(flashcard);
-						const _flashcards = structuredClone(flashcards);
-						setFlashcards(_flashcards);
+						const _flashcard: IFlashcard = response.data;
+						const _frontendFlashcard =
+							convertFlashcardToFrontendFlaschard(_flashcard);
+						frontendFlashcards.push(_frontendFlashcard);
+						const _flashcards = structuredClone(frontendFlashcards);
+						setFrontendFlashcards(_flashcards);
 						resolve({ message: "ok" });
 					} else {
 						reject({
@@ -76,12 +92,14 @@ export const AppProvider: React.FC<IAppProvider> = ({ children }) => {
 					);
 					if (response.status === 200) {
 						const flashcard: IFlashcard = response.data;
-						const indexToRemove = flashcards.findIndex(
+						const indexToRemove = frontendFlashcards.findIndex(
 							(m) => m.suuid === flashcard.suuid
 						);
 						if (indexToRemove !== -1) {
-							flashcards.splice(indexToRemove, 1);
-							setFlashcards(structuredClone(flashcards));
+							frontendFlashcards.splice(indexToRemove, 1);
+							setFrontendFlashcards(
+								structuredClone(frontendFlashcards)
+							);
 							resolve({ message: "ok" });
 						} else {
 							reject({
@@ -105,9 +123,10 @@ export const AppProvider: React.FC<IAppProvider> = ({ children }) => {
 	return (
 		<AppContext.Provider
 			value={{
-				flashcards,
+				frontendFlashcards,
 				saveAddFlashcard,
 				deleteFlashcard,
+				setFrontendFlashcards,
 			}}
 		>
 			{children}

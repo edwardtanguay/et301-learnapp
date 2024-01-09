@@ -59,7 +59,6 @@ export const deleteFlashcard = async (suuid: string) => {
 	if (indexToRemove !== -1) {
 		db.data.flashcards.splice(indexToRemove, 1);
 	}
-
 	if (flashcard) {
 		await db.write();
 		return flashcard;

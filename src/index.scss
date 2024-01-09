@@ -31,6 +31,7 @@ table.dataTable {
 			border-bottom: 1px solid $border;
 		}
 	}
+
 	tbody {
 		tr {
 			td {
@@ -43,8 +44,22 @@ table.dataTable {
 					font-family: monospace;
 				}
 			}
+
 			&:nth-child(even) td {
 				background-color: darken($dataRowColor, 5%);
+			}
+
+			&.deleting {
+				td {
+					background-color: rgb(79, 0, 0);
+					color: #555;
+					.finalDelete {
+						color: rgb(189, 0, 0);
+						&:hover {
+							color: red;
+						}
+					}
+				}
 			}
 		}
 	}
